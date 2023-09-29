@@ -35,7 +35,7 @@ Mount guest additions CD image.
 
 ```bash
 cd /media/cdrom
-./VBoxLinuxAdditions.sh
+sudo ./VBoxLinuxAdditions.run
 ```
 
 ## Config
