@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Intended to be run with
-# curl https://raw.githubusercontent.com/barrycohen/dotfiles/master/scripts/config-init.sh | bash
+# curl https://raw.githubusercontent.com/barrycohen/dotfiles/master/Sync/config-init.sh | bash
 
 git clone --bare git@github.com:barrycohen/dotfiles.git $HOME/.cfg
 
