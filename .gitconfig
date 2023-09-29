@@ -1,0 +1,18 @@
+[user]
+	email = barrycohen@users.noreply.github.com
+	name = barrycohen
+[alias]
+	co = checkout
+	st = status
+	meld = difftool --dir-diff --tool=meld
+	vimdiff = difftool --tool=vimdiff
+[grep]
+	linenumber = true
+[push]
+	default = simple
+[merge]
+	conflictstyle = diff3
+	tool = meld
+	ff = false
+[pull]
+	ff = true

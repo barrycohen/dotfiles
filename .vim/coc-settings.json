@@ -1,0 +1,5 @@
+{
+  "python.formatting.provider": "black",
+  "python.formatting.blackArgs": ["-l80"],
+  "prettier.semi": false
+}
