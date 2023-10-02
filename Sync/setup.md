@@ -29,7 +29,7 @@ sudo apt install vim-gtk3 htop neofetch tmux curl git ripgrep fd-find npm
 sudo apt install linux-headers-amd64 perl make gcc
 ```
 
-Replace `noauto` with `exec` for cdrom in `/etc/fstab`.
+Add `exec` for cdrom in `/etc/fstab`.
 
 Mount guest additions CD image and run `autorun.sh`.
 
