@@ -31,12 +31,7 @@ sudo apt install linux-headers-amd64 perl make gcc
 
 Replace `noauto` with `exec` for cdrom in `/etc/fstab`.
 
-Mount guest additions CD image.
-
-```bash
-cd /media/cdrom
-sudo ./VBoxLinuxAdditions.run
-```
+Mount guest additions CD image and run `autorun.sh`.
 
 ## Config
 
