@@ -1,3 +1,38 @@
+## Debian
+
+First steps:
+
+```bash
+su -
+apt update
+apt full-upgrade
+usermod -aG sudo barry
+```
+
+For sudo access with no password:
+
+```bash
+echo "%sudo  ALL=NOPASSWD: ALL" > /etc/sudoers.d/sudo_group_nopasswd
+```
+
+Reboot.
+
+Convenient packages:
+
+```bash
+sudo apt install vim-gtk3 htop neofetch tmux curl git ripgrep fd-find npm
+```
+
+### Virtualbox
+
+```bash
+sudo apt install linux-headers-amd64 perl make gcc
+```
+
+Add `exec` for cdrom in `/etc/fstab`.
+
+Mount guest additions CD image and run `autorun.sh`.
+
 ## Config
 
 ```bash
