@@ -4,7 +4,10 @@ alias la='ls -lA'
 alias l='ls -lhrt'
 
 # On Debian based OSs, fd is called fdfind (as fd is a tool within fdclone)
-alias fd=fdfind
+if [ -x /usr/bin/fdfind ]
+then
+  alias fd=fdfind
+fi
 
 # git control of dotfiles
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'

@@ -17,3 +17,27 @@ config remote set-url origin git@github.com:barrycohen/dotfiles.git
 ```
 
 Log into github, `settings` > `SSH and PGP keys` > `New SSD key`.
+
+## Aliases
+
+On openSUSE, `.bash_aliases` isn't picked up, instead it uses `~/.alises` so run
+
+```bash
+ln -s ~/.bash_aliases ~/.alises
+```
+
+# Dircolors
+
+If `~/.dircolors` isn't working, add to `~/.bashrc`
+
+```bash
+eval "$(dircolors -b ~/.dircolors)"
+```
+
+# Prompt
+
+If prompt is not as expected, add to `~/.bashrc`:
+
+```bash
+export PS1='[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+```
