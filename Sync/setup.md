@@ -55,15 +55,15 @@ Log into github, `settings` > `SSH and PGP keys` > `New SSD key`.
 
 ## Aliases
 
-On openSUSE, `.bash_aliases` isn't picked up, instead it uses `~/.alises` so run
+On openSUSE, `.bash_aliases` isn't picked up, instead it uses `~/.alias` so run
 
 ```bash
-ln -s ~/.bash_aliases ~/.alises
+ln -s ~/.bash_aliases ~/.alias
 ```
 
 # Dircolors
 
-If `~/.dircolors` isn't working, add to `~/.bashrc`
+If `~/.dircolors` isn't working, add to `~/.bashrc`:
 
 ```bash
 eval "$(dircolors -b ~/.dircolors)"
@@ -74,5 +74,5 @@ eval "$(dircolors -b ~/.dircolors)"
 If prompt is not as expected, add to `~/.bashrc`:
 
 ```bash
-export PS1='[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 ```
