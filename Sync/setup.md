@@ -33,6 +33,10 @@ Add `exec` for cdrom in `/etc/fstab`.
 
 Mount guest additions CD image and run `autorun.sh`.
 
+## openSUSE
+
+For `ssh` and Windows DNS to work, load YaST > Firewall and add `ssh` and `mdns` services to the `public` zone.
+
 ## Config
 
 ```bash
@@ -52,6 +56,12 @@ config remote set-url origin git@github.com:barrycohen/dotfiles.git
 ```
 
 Log into github, `settings` > `SSH and PGP keys` > `New SSH key`.
+
+github does not allow an ssh key to be used for multiple repositories. If you need a separate one, run `ssh-keygen` and save they key to `~/.ssh/id_rsa_config`. Add `id_rsa_config.pub` to github instead. Then configure git to use this key with:
+
+```bash
+config config core.sshCommand "ssh -i ~/.ssh/id_rsa_config"
+```
 
 ## Aliases
 
