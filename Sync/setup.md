@@ -51,7 +51,7 @@ cat ~/.ssh/id_rsa.pub
 config remote set-url origin git@github.com:barrycohen/dotfiles.git
 ```
 
-Log into github, `settings` > `SSH and PGP keys` > `New SSD key`.
+Log into github, `settings` > `SSH and PGP keys` > `New SSH key`.
 
 ## Aliases
 
