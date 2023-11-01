@@ -37,6 +37,30 @@ Mount guest additions CD image and run `autorun.sh`.
 
 For `ssh` and Windows DNS to work, load YaST > Firewall and add `ssh` and `mdns` services to the `public` zone.
 
+### Aliases
+
+On openSUSE, `.bash_aliases` isn't picked up, instead it uses `~/.alias` so run
+
+```bash
+ln -s ~/.bash_aliases ~/.alias
+```
+
+### Dircolors
+
+If `~/.dircolors` isn't working, add to `~/.bashrc`:
+
+```bash
+eval "$(dircolors -b ~/.dircolors)"
+```
+
+### Prompt
+
+If prompt is not as expected, add to `~/.bashrc`:
+
+```bash
+export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+```
+
 ## Config
 
 ```bash
@@ -61,28 +85,4 @@ github does not allow an ssh key to be used for multiple repositories. If you ne
 
 ```bash
 config config core.sshCommand "ssh -i ~/.ssh/id_rsa_config"
-```
-
-## Aliases
-
-On openSUSE, `.bash_aliases` isn't picked up, instead it uses `~/.alias` so run
-
-```bash
-ln -s ~/.bash_aliases ~/.alias
-```
-
-# Dircolors
-
-If `~/.dircolors` isn't working, add to `~/.bashrc`:
-
-```bash
-eval "$(dircolors -b ~/.dircolors)"
-```
-
-# Prompt
-
-If prompt is not as expected, add to `~/.bashrc`:
-
-```bash
-export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 ```
