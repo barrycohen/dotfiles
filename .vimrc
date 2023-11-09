@@ -63,6 +63,9 @@ nnoremap <silent> [1;3C :TmuxNavigateRight<cr>
 " Map F5 to remove trailing whitespace
 nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 
+" Map F7 to do coc.nvim formatting
+nnoremap <silent> <F7> :Format<CR>
+
 " Enable syntax highlighting
 syntax enable
 set background=dark
