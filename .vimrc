@@ -47,6 +47,9 @@ map [1;5C w
 map <C-RIGHT> w
 map [1;5D b
 map <C-LEFT> b
+" Map Ctrl-X to open left hand explorer window
+map <C-X> :Lex<CR>
+
 " Mappings for xterm
 map [A <C-Y>
 map [B <C-E>
@@ -65,6 +68,12 @@ nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 
 " Map F7 to do coc.nvim formatting
 nnoremap <silent> <F7> :Format<CR>
+
+" Configure netrw
+let g:netrw_banner = 0
+let g:netrw_winsize = 25
+let g:netrw_liststyle = 3
+let g:netrw_altv = 1
 
 " Enable syntax highlighting
 syntax enable
