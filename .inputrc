@@ -6,3 +6,5 @@
 "\e[2~": quoted-insert
 "\eOD": backward-word
 "\eOC": forward-word
+
+set bell-style none

@@ -2,18 +2,7 @@ scriptencoding utf-8
 let s:root = expand('<sfile>:h:h:h')
 let s:is_win = has('win32') || has('win64')
 let s:is_vim = !has('nvim')
-let s:vim_api_version = 32
-
-function! coc#util#remote_fns(name)
-  let fns = ['init', 'complete', 'should_complete', 'refresh', 'get_startcol', 'on_complete', 'on_enter']
-  let res = []
-  for fn in fns
-    if exists('*coc#source#'.a:name.'#'.fn)
-      call add(res, fn)
-    endif
-  endfor
-  return res
-endfunction
+let s:vim_api_version = 34
 
 function! coc#util#merge_winhl(curr, hls) abort
   let highlightMap = {}
@@ -28,28 +17,13 @@ function! coc#util#merge_winhl(curr, hls) abort
   return join(map(items(highlightMap), 'v:val[0].":".v:val[1]'), ',')
 endfunction
 
-function! coc#util#do_complete(name, opt, cb) abort
-  let handler = 'coc#source#'.a:name.'#complete'
-  let l:Cb = {res -> a:cb(v:null, res)}
-  let args = [a:opt, l:Cb]
-  call call(handler, args)
-endfunction
-
-function! coc#util#suggest_variables(bufnr) abort
-  return {
-      \ 'disable': getbufvar(a:bufnr, 'coc_suggest_disable', 0),
-      \ 'disabled_sources': getbufvar(a:bufnr, 'coc_disabled_sources', []),
-      \ 'blacklist': getbufvar(a:bufnr, 'coc_suggest_blacklist', []),
-      \ }
-endfunction
-
 function! coc#util#api_version() abort
   return s:vim_api_version
 endfunction
 
 function! coc#util#semantic_hlgroups() abort
   let res = split(execute('hi'), "\n")
-  let filtered = filter(res, "v:val =~# '^CocSem'")
+  let filtered = filter(res, "v:val =~# '^CocSem' && v:val !~# ' cleared$'")
   return map(filtered, "matchstr(v:val,'\\v^CocSem\\w+')")
 endfunction
 
@@ -90,7 +64,7 @@ endfunction
 function! coc#util#path_replace_patterns() abort
   if has('win32unix') && exists('g:coc_cygqwin_path_prefixes')
     echohl WarningMsg
-    echon 'g:coc_cygqwin_path_prefixes is deprecated, use g:coc_uri_prefix_replace_patterns instead' 
+    echon 'g:coc_cygqwin_path_prefixes is deprecated, use g:coc_uri_prefix_replace_patterns instead'
     echohl None
     return g:coc_cygqwin_path_prefixes
   endif
@@ -161,7 +135,7 @@ function! coc#util#job_command()
   endif
   if !filereadable(s:root.'/build/index.js')
     if isdirectory(s:root.'/src')
-      echohl Error | echom '[coc.nvim] build/index.js not found, please install dependencies and compile coc.nvim by: yarn install' | echohl None
+      echohl Error | echom '[coc.nvim] build/index.js not found, please install dependencies and compile coc.nvim by: npm ci' | echohl None
     else
       echohl Error | echon '[coc.nvim] your coc.nvim is broken.' | echohl None
     endif
@@ -175,24 +149,27 @@ function! coc#util#jump(cmd, filepath, ...) abort
     silent! normal! m'
   endif
   let path = a:filepath
-  if (has('win32unix'))
+  if has('win32unix')
     let path = substitute(a:filepath, '\v\\', '/', 'g')
   endif
   let file = fnamemodify(path, ":~:.")
-  if a:cmd == 'pedit'
+  if a:cmd ==# 'pedit'
     let extra = empty(get(a:, 1, [])) ? '' : '+'.(a:1[0] + 1)
     exe 'pedit '.extra.' '.fnameescape(file)
     return
-  elseif a:cmd == 'drop' && exists('*bufadd')
+  elseif a:cmd ==# 'drop'
     let dstbuf = bufadd(path)
     let binfo = getbufinfo(dstbuf)
     if len(binfo) == 1 && empty(binfo[0].windows)
-      exec 'buffer '.dstbuf
+      execute 'buffer '.dstbuf
       let &buflisted = 1
     else
-      exec 'drop '.fnameescape(file)
+      let saved = &wildignore
+      set wildignore=
+      execute 'drop '.fnameescape(file)
+      execute 'set wildignore='.saved
     endif
-  elseif a:cmd == 'edit' && bufloaded(file)
+  elseif a:cmd ==# 'edit' && bufloaded(file)
     exe 'b '.bufnr(file)
   else
     call s:safer_open(a:cmd, file)
@@ -227,12 +204,19 @@ function! s:safer_open(cmd, file) abort
     let buf = bufadd(a:file)
     if a:cmd != 'edit'
       " Open split, tab, etc. by a:cmd.
-      exe a:cmd
+      execute a:cmd
     endif
     " Set current buffer to the file
     exe 'keepjumps buffer ' . buf
   else
-    exe a:cmd.' '.fnameescape(a:file)
+    if a:cmd =~# 'drop'
+      let saved = &wildignore
+      set wildignore=
+      execute a:cmd.' '.fnameescape(a:file)
+      execute 'set wildignore='.saved
+    else
+      execute a:cmd.' '.fnameescape(a:file)
+    endif
   endif
 endfunction
 
@@ -275,6 +259,7 @@ endfunction
 
 function! coc#util#vim_info()
   return {
+        \ 'root': s:root,
         \ 'apiversion': s:vim_api_version,
         \ 'mode': mode(),
         \ 'config': get(g:, 'coc_user_config', {}),
@@ -301,13 +286,11 @@ function! coc#util#vim_info()
         \ 'guicursor': &guicursor,
         \ 'pumwidth': exists('&pumwidth') ? &pumwidth : 15,
         \ 'tabCount': tabpagenr('$'),
-        \ 'updateHighlight': has('nvim-0.5.0') || has('textprop') ? v:true : v:false,
         \ 'vimCommands': get(g:, 'coc_vim_commands', []),
         \ 'sign': exists('*sign_place') && exists('*sign_unplace'),
         \ 'ambiguousIsNarrow': &ambiwidth ==# 'single' ? v:true : v:false,
         \ 'textprop': has('textprop') ? v:true : v:false,
-        \ 'virtualText': has('nvim-0.5.0') || has('patch-9.0.0067') ? v:true : v:false,
-        \ 'dialog': has('nvim-0.4.0') || has('popupwin') ? v:true : v:false,
+        \ 'dialog': 1,
         \ 'semanticHighlights': coc#util#semantic_hlgroups()
         \}
 endfunction
@@ -322,21 +305,14 @@ function! coc#util#all_state()
 endfunction
 
 function! coc#util#install() abort
-  let yarncmd = get(g:, 'coc_install_yarn_cmd', executable('yarnpkg') ? 'yarnpkg' : 'yarn')
   call coc#ui#open_terminal({
         \ 'cwd': s:root,
-        \ 'cmd': yarncmd.' install --frozen-lockfile --ignore-engines',
+        \ 'cmd': 'npm ci',
         \ 'autoclose': 0,
         \ })
 endfunction
 
 function! coc#util#extension_root() abort
-  if get(g:, 'coc_node_env', '') ==# 'test'
-    return s:root.'/src/__tests__/extensions'
-  endif
-  if !empty(get(g:, 'coc_extension_root', ''))
-    echohl Error | echon 'g:coc_extension_root not used any more, use g:coc_data_home instead' | echohl None
-  endif
   return coc#util#get_data_home().'/extensions'
 endfunction
 
@@ -406,17 +382,10 @@ function! coc#util#get_format_opts(bufnr) abort
 endfunction
 
 function! coc#util#get_editoroption(winid) abort
-  if !coc#compat#win_is_valid(a:winid)
+  let info = get(getwininfo(a:winid), 0, v:null)
+  if empty(info) || coc#window#is_float(a:winid)
     return v:null
   endif
-  if has('nvim') && exists('*nvim_win_get_config')
-    " avoid float window
-    let config = nvim_win_get_config(a:winid)
-    if !empty(get(config, 'relative', ''))
-      return v:null
-    endif
-  endif
-  let info = getwininfo(a:winid)[0]
   let bufnr = info['bufnr']
   let buftype = getbufvar(bufnr, '&buftype')
   " avoid window for other purpose.
@@ -430,13 +399,48 @@ function! coc#util#get_editoroption(winid) abort
   return {
         \ 'bufnr': bufnr,
         \ 'winid': a:winid,
-        \ 'winids': map(getwininfo(), 'v:val["winid"]'),
-        \ 'tabpagenr': info['tabnr'],
+        \ 'tabpageid': coc#util#tabnr_id(info['tabnr']),
         \ 'winnr': winnr(),
         \ 'visibleRanges': s:visible_ranges(a:winid),
         \ 'tabSize': tabSize,
         \ 'insertSpaces': getbufvar(bufnr, '&expandtab') ? v:true : v:false
         \ }
+endfunction
+
+function! coc#util#tabnr_id(tabnr) abort
+  return s:is_vim ? coc#api#get_tabid(a:tabnr) : nvim_list_tabpages()[a:tabnr - 1]
+endfunction
+
+function! coc#util#get_loaded_bufs() abort
+  return map(getbufinfo({'bufloaded': 1}),'v:val["bufnr"]')
+endfunction
+
+function! coc#util#editor_infos() abort
+  let result = []
+  for info in getwininfo()
+    if !coc#window#is_float(info['winid'])
+      let bufnr = info['bufnr']
+      let buftype = getbufvar(bufnr, '&buftype')
+      if buftype !=# '' && buftype !=# 'acwrite'
+        continue
+      endif
+      let bufname = bufname(bufnr)
+      call add(result, {
+          \ 'winid': info['winid'],
+          \ 'bufnr': bufnr,
+          \ 'tabid': coc#util#tabnr_id(info['tabnr']),
+          \ 'fullpath': empty(bufname) ? '' : fnamemodify(bufname, ':p'),
+          \ })
+    endif
+  endfor
+  return result
+endfunction
+
+function! coc#util#tabpages() abort
+  if s:is_vim
+    return coc#api#exec('list_tabpages', [])
+  endif
+  return nvim_list_tabpages()
 endfunction
 
 function! coc#util#getpid()
@@ -462,6 +466,7 @@ function! coc#util#get_bufoptions(bufnr, max) abort
   if !bufloaded(a:bufnr) | return v:null | endif
   let bufname = bufname(a:bufnr)
   let buftype = getbufvar(a:bufnr, '&buftype')
+  let commandline = get(getbufinfo(a:bufnr)[0], 'command', 0) || bufname(a:bufnr) == '[Command Line]'
   let size = coc#util#bufsize(a:bufnr)
   let lines = v:null
   if getbufvar(a:bufnr, 'coc_enabled', 1)
@@ -472,6 +477,7 @@ function! coc#util#get_bufoptions(bufnr, max) abort
   endif
   return {
         \ 'bufnr': a:bufnr,
+        \ 'commandline': commandline,
         \ 'size': size,
         \ 'lines': lines,
         \ 'winid': bufwinid(a:bufnr),
@@ -507,26 +513,36 @@ function! coc#util#get_config_home()
     return resolve($VIMCONFIG)
   endif
   if has('nvim')
+    let appname = empty($NVIM_APPNAME) ? 'nvim' : $NVIM_APPNAME
     if exists('$XDG_CONFIG_HOME')
-      return resolve($XDG_CONFIG_HOME."/nvim")
+      return resolve($XDG_CONFIG_HOME."/".appname)
     endif
     if s:is_win
-      return resolve($HOME.'/AppData/Local/nvim')
+      return resolve($HOME.'/AppData/Local/'.appname)
     endif
-    return resolve($HOME.'/.config/nvim')
+    return resolve($HOME.'/.config/'.appname)
   else
     if s:is_win
       return resolve($HOME."/vimfiles")
     endif
-    return resolve($HOME.'/.vim')
+    if isdirectory(resolve($HOME.'/.vim'))
+      return resolve($HOME.'/.vim')
+    endif
+    if exists('$XDG_CONFIG_HOME') && isdirectory(resolve($XDG_CONFIG_HOME))
+      return resolve($XDG_CONFIG_HOME.'/vim')
+    endif
+    return resolve($HOME.'/.config/vim')
   endif
 endfunction
 
 function! coc#util#get_data_home()
+  if get(g:, 'coc_node_env', '') ==# 'test'
+    return $COC_DATA_HOME
+  endif
   if !empty(get(g:, 'coc_data_home', ''))
     let dir = resolve(expand(g:coc_data_home))
   else
-    if exists('$XDG_CONFIG_HOME')
+    if exists('$XDG_CONFIG_HOME') && isdirectory(resolve($XDG_CONFIG_HOME))
       let dir = resolve($XDG_CONFIG_HOME."/coc")
     else
       if s:is_win
@@ -548,9 +564,6 @@ function! coc#util#get_data_home()
 endfunction
 
 function! coc#util#get_complete_option()
-  if get(b:,"coc_suggest_disable",0)
-    return v:null
-  endif
   let pos = getcurpos()
   let line = getline(pos[1])
   let input = matchstr(strpart(line, 0, pos[2] - 1), '\k*$')
@@ -574,8 +587,6 @@ function! coc#util#get_complete_option()
         \ 'colnr' : pos[2],
         \ 'col': col - 1,
         \ 'changedtick': b:changedtick,
-        \ 'blacklist': get(b:, 'coc_suggest_blacklist', []),
-        \ 'disabled': get(b:, 'coc_disabled_sources', []),
         \}
 endfunction
 
@@ -595,13 +606,21 @@ function! coc#util#get_buf_lines(bufnr, changedtick)
 endfunction
 
 " used for TextChangedI with InsertCharPre
-function! coc#util#get_changeinfo()
-  return {
-        \ 'bufnr': bufnr('%'),
-        \ 'lnum': line('.'),
-        \ 'line': getline('.'),
-        \ 'changedtick': b:changedtick,
-        \}
+function! coc#util#get_changeinfo(bufnr)
+  if bufnr('%') == a:bufnr
+    return {
+          \ 'lnum': line('.'),
+          \ 'line': getline('.'),
+          \ 'changedtick': b:changedtick,
+          \}
+  endif
+  let winid = bufwinid(a:bufnr)
+  if winid != -1
+    let ref = {}
+    call win_execute(winid, 'let ref = {"lnum": line("."), "line": getline("."), "changedtick": b:changedtick}')
+    return ref
+  endif
+  return v:null
 endfunction
 
 " Get the valid position from line, character of current buffer
