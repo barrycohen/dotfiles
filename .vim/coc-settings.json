@@ -1,4 +1,5 @@
 {
   "python.formatting.provider": "ruff",
+  "pyright.inlayHints.parameterTypes": false,
   "prettier.semi": false
 }
