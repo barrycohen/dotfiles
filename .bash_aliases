@@ -11,3 +11,12 @@ fi
 
 # git control of dotfiles
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+
+# Vim DirDiff
+function dirdiff()
+{
+    # Shell-escape each path:
+    DIR1=$(printf '%q' "$1"); shift
+    DIR2=$(printf '%q' "$1"); shift
+    vim $@ -c "DirDiff $DIR1 $DIR2"
+}
