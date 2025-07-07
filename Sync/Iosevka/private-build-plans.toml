@@ -22,7 +22,6 @@ t = "flat-hook"
 y = "straight-turn-serifless"
 brace = "straight"
 number-sign = "slanted"
-at = "fourfold"
 percent = "rings-continuous-slash"
 
 [buildPlans.IosevkaCustom.variants.italic]
