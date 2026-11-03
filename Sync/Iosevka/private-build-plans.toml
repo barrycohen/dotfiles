@@ -1,6 +1,7 @@
 [buildPlans.IosevkaCustom]
 family = "Iosevka Custom"
-spacing = "normal"
+# Make double-width characters fit in one character for terminals
+spacing = "term"
 serifs = "sans"
 noCvSs = true
 exportGlyphNames = false
