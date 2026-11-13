@@ -3,6 +3,9 @@ alias ll='ls -l'
 alias la='ls -lA'
 alias l='ls -lhrt'
 
+# tmux attach
+alias t='tmux a || tmux'
+
 # On Debian based OSs, fd is called fdfind (as fd is a tool within fdclone)
 if [ -x /usr/bin/fdfind ]
 then
