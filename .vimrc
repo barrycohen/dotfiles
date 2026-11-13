@@ -58,10 +58,10 @@ map [D b
 
 " Move around with tmux navigator
 let g:tmux_navigator_no_mappings = 1
-nnoremap <silent> [1;3D :TmuxNavigateLeft<cr>
-nnoremap <silent> [1;3B :TmuxNavigateDown<cr>
-nnoremap <silent> [1;3A :TmuxNavigateUp<cr>
-nnoremap <silent> [1;3C :TmuxNavigateRight<cr>
+nnoremap <silent> <M-Left> :TmuxNavigateLeft<cr>
+nnoremap <silent> <M-Right> :TmuxNavigateRight<cr>
+nnoremap <silent> <M-Up> :TmuxNavigateUp<cr>
+nnoremap <silent> <M-Down> :TmuxNavigateDown<cr>
 
 " Map F5 to remove trailing whitespace
 nnoremap <silent> <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
